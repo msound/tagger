@@ -13,8 +13,8 @@ type Flags struct {
 
 // Config is a struct that contains default configuration.
 type Config struct {
-	defaultBranch  string
-	upstreamRemote string
+	DefaultBranch  string
+	UpstreamRemote string
 }
 
 var flags = new(Flags)
@@ -27,8 +27,8 @@ func init() {
 func main() {
 	flag.Parse()
 
-	config.defaultBranch = "master"
-	config.upstreamRemote = "upstream"
+	config.DefaultBranch = "master"
+	config.UpstreamRemote = "upstream"
 
 	// Check if we are on master branch.
 	Verbose("Opening repo")
@@ -39,13 +39,13 @@ func main() {
 	name, local, err := GetCurrentBranch(repo)
 	FailOnError(err, "Error in getting current branch")
 
-	if name != config.defaultBranch {
-		Die("You are not on branch: " + config.defaultBranch)
+	if name != config.DefaultBranch {
+		Die("You are not on branch: " + config.DefaultBranch)
 	}
 
 	// Fetch origin.
 	Verbose("Running git fetch")
-	upstream, err := GitFetch(repo, config.upstreamRemote)
+	upstream, err := GitFetch(repo, config.UpstreamRemote)
 	FailOnError(err, "Error doing git fetch")
 
 	// See if local in sync with upstream.
