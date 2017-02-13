@@ -1,0 +1,11 @@
+{
+	"ImportPath": "github.com/msound/tagger",
+	"GoVersion": "go1.7",
+	"GodepVersion": "v75",
+	"Deps": [
+		{
+			"ImportPath": "gopkg.in/libgit2/git2go.v25",
+			"Rev": "334260d743d713a55ff3c097ec6707f2bb39e9d5"
+		}
+	]
+}
