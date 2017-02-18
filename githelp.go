@@ -1,8 +1,11 @@
 // This file contains git related help functions.
 package main
 
-import "errors"
-import git2go "gopkg.in/libgit2/git2go.v25"
+import (
+	"errors"
+
+	git2go "gopkg.in/libgit2/git2go.v25"
+)
 
 // OpenRepo opens and returns a Repository specified by the path.
 func OpenRepo(path string) (*git2go.Repository, error) {

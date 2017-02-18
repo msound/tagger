@@ -3,7 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
+
+	"github.com/coreos/go-semver/semver"
 )
 
 // Flags is a struct that contains various command line flags.
@@ -13,8 +14,11 @@ type Flags struct {
 
 // Config is a struct that contains default configuration.
 type Config struct {
-	DefaultBranch  string
-	UpstreamRemote string
+	DefaultBranch  string `yaml:"branch"` // Default branch of the repo. ex: master
+	UpstreamRemote string `yaml:"remote"` // Upstream remote of the repo. ex: origin
+	FileFormat     string `yaml:"format"` // Format of file that contains version. ex: php, yaml, json
+	FilePath       string `yaml:"file"`   // Path to file that contains version. ex: docroot/version.php
+	VersionKey     string `yaml:"key"`    // Key in the file that refers to the version. ex: APP_VERSION
 }
 
 var flags = new(Flags)
@@ -27,10 +31,12 @@ func init() {
 func main() {
 	flag.Parse()
 
-	config.DefaultBranch = "master"
-	config.UpstreamRemote = "upstream"
+	// Load configuration.
+	Verbose("Loading config from .tagger.yml")
+	err := LoadConfig(config)
+	FailOnError(err, "Error loading config")
 
-	// Check if we are on master branch.
+	// Check if current branch is master branch.
 	Verbose("Opening repo")
 	repo, err := OpenRepo(".")
 	FailOnError(err, "Error opening repo")
@@ -43,7 +49,7 @@ func main() {
 		Die("You are not on branch: " + config.DefaultBranch)
 	}
 
-	// Fetch origin.
+	// Fetch upstream.
 	Verbose("Running git fetch")
 	upstream, err := GitFetch(repo, config.UpstreamRemote)
 	FailOnError(err, "Error doing git fetch")
@@ -53,9 +59,16 @@ func main() {
 		Die("Your local branch is out of sync with upstream")
 	}
 
-	fmt.Println("ok")
-
 	// find current version from version.php.
+	var version *semver.Version
+	switch config.FileFormat {
+	case "php":
+		version, err = PHPGetSemver()
+		FailOnError(err, "Error reading version from "+config.FilePath)
+	}
+
+	fmt.Println(version.String())
+	fmt.Println("ok")
 
 	// Iterate over merge commits since that tag and prepare changelog.
 
@@ -66,25 +79,4 @@ func main() {
 	// Create annotated Tag.
 
 	// Push master branch with tags.
-}
-
-// Verbose prints debug messages if verbose flag is enabled in command-line options.
-func Verbose(format string, a ...interface{}) {
-	if flags.verbose {
-		fmt.Printf(format+"\n", a...)
-	}
-}
-
-// FailOnError is a helper function to validate err object and exit if necessary.
-func FailOnError(err error, msg string) {
-	if err != nil {
-		os.Stderr.WriteString(msg + " : " + err.Error() + "\n")
-		os.Exit(1)
-	}
-}
-
-// Die is a helper function to exit the program abnormally.
-func Die(format string, a ...interface{}) {
-	os.Stderr.WriteString(fmt.Sprintf(format, a...) + "\n")
-	os.Exit(1)
 }
