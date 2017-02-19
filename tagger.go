@@ -72,17 +72,33 @@ func main() {
 	commits, err := Changelog(repo, version.String())
 	FailOnError(err, "Error getting changelog")
 
-	fmt.Println("Changelog:")
+	fmt.Printf("Changelog since %s\n", version.String())
 	for _, commit := range commits {
 		fmt.Println(commit)
 	}
-	fmt.Println("ok")
 
 	// Interactievely ask user if they want major, minor or patch.
+	var tag string
+	fmt.Print("Enter tag (major/minor/patch/x.y.z): ")
+	fmt.Scanf("%s", &tag)
 
 	// Bump version and update version.php and commit.
+	switch tag {
+	case "major":
+		version.BumpMajor()
+	case "minor":
+		version.BumpMinor()
+	case "patch":
+		version.BumpPatch()
+	default:
+		err = version.Set(tag)
+		if err != nil {
+			Die("Invalid version given")
+		}
+	}
 
 	// Create annotated Tag.
+	fmt.Printf("Tagging %s\n", version.String())
 
 	// Push master branch with tags.
 }
