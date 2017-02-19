@@ -67,10 +67,16 @@ func main() {
 		FailOnError(err, "Error reading version from "+config.FilePath)
 	}
 
-	fmt.Println(version.String())
-	fmt.Println("ok")
-
 	// Iterate over merge commits since that tag and prepare changelog.
+	Verbose("Getting changelog since: %s", version.String())
+	commits, err := Changelog(repo, version.String())
+	FailOnError(err, "Error getting changelog")
+
+	fmt.Println("Changelog:")
+	for _, commit := range commits {
+		fmt.Println(commit)
+	}
+	fmt.Println("ok")
 
 	// Interactievely ask user if they want major, minor or patch.
 

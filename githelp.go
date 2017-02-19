@@ -3,6 +3,8 @@ package main
 
 import (
 	"errors"
+	"regexp"
+	"strings"
 
 	git2go "gopkg.in/libgit2/git2go.v25"
 )
@@ -72,4 +74,43 @@ func CertCheckCallback(cert *git2go.Certificate, valid bool, hostname string) gi
 
 	Die("Tagger does not support HTTPS for git remote.")
 	return git2go.ErrorCode(git2go.ErrGeneric)
+}
+
+// Changelog returns the change log of merge commits since the given tag.
+func Changelog(repo *git2go.Repository, tag string) ([]string, error) {
+	var mergeCommits []string
+	walk, err := repo.Walk()
+	if err != nil {
+		return mergeCommits, errors.New("Error getting changelog")
+	}
+
+	err = walk.HideRef("refs/tags/" + tag)
+	if err != nil {
+		return mergeCommits, errors.New("Error getting changelog")
+	}
+
+	err = walk.PushHead()
+	if err != nil {
+		return mergeCommits, errors.New("Error getting changelog")
+	}
+
+	// err = walk.Iterate(walker)
+	re := regexp.MustCompile("Merge pull request (#\\d+)")
+	err = walk.Iterate(func(c *git2go.Commit) bool {
+		matches := re.FindStringSubmatch(c.Summary())
+		if len(matches) >= 2 {
+			commit := matches[1]
+			lines := strings.SplitN(c.Message(), "\n", 4)
+			if len(lines) >= 3 {
+				commit = commit + " - " + lines[2]
+			}
+			mergeCommits = append(mergeCommits, commit)
+		}
+		return true
+	})
+	if err != nil {
+		return mergeCommits, errors.New("Error getting changelog")
+	}
+
+	return mergeCommits, nil
 }
