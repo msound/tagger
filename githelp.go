@@ -114,3 +114,11 @@ func Changelog(repo *git2go.Repository, tag string) ([]string, error) {
 
 	return mergeCommits, nil
 }
+
+// PrepareMessage returns a message to be used in annotated tag,
+// given a list of commit messages.
+func PrepareMessage(changes []string) string {
+	output := "Changelog\n\n" + strings.Join(changes, "\n")
+
+	return output
+}

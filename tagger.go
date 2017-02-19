@@ -42,8 +42,10 @@ func main() {
 	FailOnError(err, "Error opening repo")
 
 	Verbose("Getting current branch")
-	name, local, err := GetCurrentBranch(repo)
+	name, localHead, err := GetCurrentBranch(repo)
 	FailOnError(err, "Error in getting current branch")
+	head, err := repo.LookupCommit(localHead)
+	FailOnError(err, "Cannot get HEAD commit")
 
 	if name != config.DefaultBranch {
 		Die("You are not on branch: " + config.DefaultBranch)
@@ -51,11 +53,11 @@ func main() {
 
 	// Fetch upstream.
 	Verbose("Running git fetch")
-	upstream, err := GitFetch(repo, config.UpstreamRemote)
+	upstreamHead, err := GitFetch(repo, config.UpstreamRemote)
 	FailOnError(err, "Error doing git fetch")
 
 	// See if local in sync with upstream.
-	if local.String() != upstream.String() {
+	if localHead.String() != upstreamHead.String() {
 		Die("Your local branch is out of sync with upstream")
 	}
 
@@ -99,6 +101,16 @@ func main() {
 
 	// Create annotated Tag.
 	fmt.Printf("Tagging %s\n", version.String())
+
+	signature, err := repo.DefaultSignature()
+	FailOnError(err, "Error getting tagger's name and email")
+
+	message := PrepareMessage(commits)
+
+	_, err = repo.Tags.Create(version.String(), head, signature, message)
+	FailOnError(err, "Error creating tag")
+
+	fmt.Println("Done")
 
 	// Push master branch with tags.
 }
