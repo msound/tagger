@@ -61,7 +61,7 @@ func main() {
 		Die("Your local branch is out of sync with upstream")
 	}
 
-	// find current version from version.php.
+	// find current version from version file.
 	var version *semver.Version
 	switch config.FileFormat {
 	case "php":
@@ -85,6 +85,7 @@ func main() {
 	fmt.Scanf("%s", &tag)
 
 	// Bump version and update version.php and commit.
+	oldVersion := version.String()
 	switch tag {
 	case "major":
 		version.BumpMajor()
@@ -98,6 +99,14 @@ func main() {
 			Die("Invalid version given")
 		}
 	}
+
+	// write new version to version file.
+	switch config.FileFormat {
+	case "php":
+		err = PHPSetSemver(oldVersion, version)
+		FailOnError(err, "Error writing version to "+config.FilePath)
+	}
+	// TODO commit this file
 
 	// Create annotated Tag.
 	fmt.Printf("Tagging %s\n", version.String())

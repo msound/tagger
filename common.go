@@ -32,6 +32,26 @@ func GetFileContents(filename string) ([]byte, error) {
 	return data, nil
 }
 
+// PutFileContents will write given contents to given file.
+func PutFileContents(filename string, contents string) error {
+	fileInfo, err := os.Stat(filename)
+	if err != nil {
+		return errors.New("Error determining file permissions for writing")
+	}
+
+	f, err := os.OpenFile(filename, os.O_WRONLY, fileInfo.Mode().Perm())
+	if err != nil {
+		return errors.New("Error opening file to write")
+	}
+
+	_, err = f.WriteString(contents)
+	if err != nil {
+		return errors.New("Error writing file")
+	}
+
+	return nil
+}
+
 // Verbose prints debug messages if verbose flag is enabled in command-line options.
 func Verbose(format string, a ...interface{}) {
 	if flags.verbose {
