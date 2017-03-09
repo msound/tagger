@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	// TODO move this to vendor/ folder
 	git2go "gopkg.in/libgit2/git2go.v25"
 )
 
@@ -121,4 +122,71 @@ func PrepareMessage(changes []string) string {
 	output := "Changelog\n\n" + strings.Join(changes, "\n")
 
 	return output
+}
+
+// CommitFiles commits the given files to git repo.
+func CommitFiles(repo *git2go.Repository, files []string, message string) (*git2go.Commit, error) {
+	var signature *git2go.Signature
+	var index *git2go.Index
+	var treeOid, commitOid *git2go.Oid
+	var tree *git2go.Tree
+	var newHead, parents *git2go.Commit
+	var head *git2go.Reference
+	var err error
+
+	if signature, err = repo.DefaultSignature(); err != nil {
+		return nil, err
+	}
+
+	if index, err = repo.Index(); err != nil {
+		return nil, err
+	}
+
+	for _, f := range files {
+		if err = index.AddByPath(f); err != nil {
+			return nil, err
+		}
+	}
+
+	if treeOid, err = index.WriteTree(); err != nil {
+		return nil, err
+	}
+
+	if tree, err = repo.LookupTree(treeOid); err != nil {
+		return nil, err
+	}
+
+	if head, err = repo.Head(); err != nil {
+		return nil, err
+	}
+
+	if parents, err = repo.LookupCommit(head.Target()); err != nil {
+		return nil, err
+	}
+
+	if commitOid, err = repo.CreateCommit("HEAD", signature, signature, message, tree, parents); err != nil {
+		return nil, err
+	}
+
+	if newHead, err = repo.LookupCommit(commitOid); err != nil {
+		return nil, err
+	}
+
+	if err = repo.ResetToCommit(newHead, git2go.ResetHard, nil); err != nil {
+		return nil, err
+	}
+
+	return newHead, nil
+}
+
+// CreateAnnotatedTag creates an annotated tag at given commit.
+func CreateAnnotatedTag(repo *git2go.Repository, tag string, commit *git2go.Commit, message string) error {
+	var signature *git2go.Signature
+	var err error
+
+	if signature, err = repo.DefaultSignature(); err != nil {
+		return err
+	}
+	_, err = repo.Tags.Create(tag, commit, signature, message)
+	return err
 }

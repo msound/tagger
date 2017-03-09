@@ -44,8 +44,6 @@ func main() {
 	Verbose("Getting current branch")
 	name, localHead, err := GetCurrentBranch(repo)
 	FailOnError(err, "Error in getting current branch")
-	head, err := repo.LookupCommit(localHead)
-	FailOnError(err, "Cannot get HEAD commit")
 
 	if name != config.DefaultBranch {
 		Die("You are not on branch: " + config.DefaultBranch)
@@ -106,17 +104,18 @@ func main() {
 		err = PHPSetSemver(oldVersion, version)
 		FailOnError(err, "Error writing version to "+config.FilePath)
 	}
-	// TODO commit this file
+
+	// commit the version file.
+	files := []string{config.FilePath}
+	message := "Preparing to tag " + version.String()
+	newHead, err := CommitFiles(repo, files, message)
+	FailOnError(err, "Error committing changes")
+	Verbose("New HEAD is: " + newHead.Id().String())
 
 	// Create annotated Tag.
-	fmt.Printf("Tagging %s\n", version.String())
-
-	signature, err := repo.DefaultSignature()
-	FailOnError(err, "Error getting tagger's name and email")
-
-	message := PrepareMessage(commits)
-
-	_, err = repo.Tags.Create(version.String(), head, signature, message)
+	Verbose("Tagging %s\n", version.String())
+	message = PrepareMessage(commits)
+	err = CreateAnnotatedTag(repo, version.String(), newHead, message)
 	FailOnError(err, "Error creating tag")
 
 	fmt.Println("Done")
