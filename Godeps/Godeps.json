@@ -4,6 +4,11 @@
 	"GodepVersion": "v75",
 	"Deps": [
 		{
+			"ImportPath": "github.com/coreos/go-semver/semver",
+			"Comment": "v0.2.0-5-g5e3acbb",
+			"Rev": "5e3acbb5668c4c3deb4842615c4098eb61fb6b1e"
+		},
+		{
 			"ImportPath": "gopkg.in/libgit2/git2go.v25",
 			"Rev": "334260d743d713a55ff3c097ec6707f2bb39e9d5"
 		},
