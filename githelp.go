@@ -39,13 +39,14 @@ func GitFetch(repo *git2go.Repository, remoteName string) (*git2go.Oid, error) {
 		return nil, errors.New("Cannot find remote: " + remoteName)
 	}
 
-	callbacks := git2go.RemoteCallbacks{
-		CredentialsCallback:      CredsCallback,
-		CertificateCheckCallback: CertCheckCallback,
+	fetchOptions := git2go.FetchOptions{
+		RemoteCallbacks: git2go.RemoteCallbacks{
+			CredentialsCallback:      CredsCallback,
+			CertificateCheckCallback: CertCheckCallback,
+		},
+		DownloadTags: git2go.DownloadTagsAll,
 	}
-	proxyopts := git2go.ProxyOptions{}
-	var headers []string
-	err = remote.ConnectFetch(&callbacks, &proxyopts, headers)
+	err = remote.Fetch([]string{}, &fetchOptions, "")
 	if err != nil {
 		return nil, errors.New("Cannot do git fetch")
 	}
