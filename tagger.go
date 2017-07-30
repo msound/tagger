@@ -93,9 +93,7 @@ func main() {
 		version.BumpPatch()
 	default:
 		err = version.Set(tag)
-		if err != nil {
-			Die("Invalid version given")
-		}
+		FailOnError(err, "Invalid version given")
 	}
 
 	// write new version to version file.
@@ -118,7 +116,7 @@ func main() {
 	err = CreateAnnotatedTag(repo, version.String(), newHead, message)
 	FailOnError(err, "Error creating tag")
 
-	fmt.Println("Done")
+	fmt.Println(version.String())
 
 	// Push master branch with tags.
 }
