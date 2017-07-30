@@ -135,45 +135,55 @@ func CommitFiles(repo *git2go.Repository, files []string, message string) (*git2
 	var head *git2go.Reference
 	var err error
 
-	if signature, err = repo.DefaultSignature(); err != nil {
+	signature, err = repo.DefaultSignature()
+	if err != nil {
 		return nil, err
 	}
 
-	if index, err = repo.Index(); err != nil {
+	index, err = repo.Index()
+	if err != nil {
 		return nil, err
 	}
 
 	for _, f := range files {
-		if err = index.AddByPath(f); err != nil {
+		err = index.AddByPath(f)
+		if err != nil {
 			return nil, err
 		}
 	}
 
-	if treeOid, err = index.WriteTree(); err != nil {
+	treeOid, err = index.WriteTree()
+	if err != nil {
 		return nil, err
 	}
 
-	if tree, err = repo.LookupTree(treeOid); err != nil {
+	tree, err = repo.LookupTree(treeOid)
+	if err != nil {
 		return nil, err
 	}
 
-	if head, err = repo.Head(); err != nil {
+	head, err = repo.Head()
+	if err != nil {
 		return nil, err
 	}
 
-	if parents, err = repo.LookupCommit(head.Target()); err != nil {
+	parents, err = repo.LookupCommit(head.Target())
+	if err != nil {
 		return nil, err
 	}
 
-	if commitOid, err = repo.CreateCommit("HEAD", signature, signature, message, tree, parents); err != nil {
+	commitOid, err = repo.CreateCommit("HEAD", signature, signature, message, tree, parents)
+	if err != nil {
 		return nil, err
 	}
 
-	if newHead, err = repo.LookupCommit(commitOid); err != nil {
+	newHead, err = repo.LookupCommit(commitOid)
+	if err != nil {
 		return nil, err
 	}
 
-	if err = repo.ResetToCommit(newHead, git2go.ResetHard, nil); err != nil {
+	err = repo.ResetToCommit(newHead, git2go.ResetHard, nil)
+	if err != nil {
 		return nil, err
 	}
 
@@ -185,7 +195,8 @@ func CreateAnnotatedTag(repo *git2go.Repository, tag string, commit *git2go.Comm
 	var signature *git2go.Signature
 	var err error
 
-	if signature, err = repo.DefaultSignature(); err != nil {
+	signature, err = repo.DefaultSignature()
+	if err != nil {
 		return err
 	}
 	_, err = repo.Tags.Create(tag, commit, signature, message)
