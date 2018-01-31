@@ -1,0 +1,29 @@
+language: go
+sudo: required
+os:
+- linux
+- osx
+branches:
+  only:
+  - master
+  - /\d+\.\d+\.\d+/
+go:
+- 1.9.x
+before_install:
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/ee6a30a7e167a2bd39b33e54bcf912a1190e2ce6/Formula/libgit2.rb;
+  fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then scripts/before_install_linux.sh; fi
+script:
+- go build -o bin/tagger-$GIMME_OS-$GIMME_ARCH
+notifications:
+  email:
+    on_success: change
+    on_failure: always
+deploy:
+  provider: releases
+  api_key:
+    secure: svgYjR4JaFpF65kOFHci2mJkT8XrcC3digsufnIPyjy1DprbHxIfD7de3ypPMmweIzDmVg4q9YFLKkmYcm3BLqXF8HDox2RdkPVO+L3AuWsTT1xjoXWgXpHbpsPuSKxFpheIxG2JIKNJrkKIisiOZHNGv58JADiXVrAm5/kQQaAftkPJTqY9yn6AIDx5rhnc557EvTJf1W47JhrnD/KQXrQYnjXEOPELiboZWQ+0QXriUEBAOY5uA8pEEneLZPnBmCuEF+83DKZEZ/jTecia87DiAzRRDLVkTrSAZoMAQVOhge2pxiPRB7yPyuQV+WRkgK0ZfBa/c8Lg/dD10EawFJ3MwJi9XQWCsElY0qG2i7lhXtdnp7qVK/RwSz7T+WWSe6bTkhKaXXRGMcVisJDq3Pn7e2M2Oa756cIHzV8qrOKgGnS12XoYrQjaCRtSaF6NOkIp+zqFUwySf/r/Mfi1C5SVwt6yeByn0HS/XTcAT1FpHMSnlXi0YVA/5loq0fONNZxtc2d3UmnI+vMx6tVdx87brRWwE6dNd7eoJOi59QktCXCGSl8JUnWX0WEbDA5CPH3S7ahqiatZbsc4UPsRs5DZHNhywWcxzrsMh/KO1wPDjviYIUNJbr7sfOoYaU2EYBEx7fUQT2y12ugOGQJnCbPjb4LMz41gzhJumFqwfwY=
+  file: bin/tagger-$GIMME_OS-$GIMME_ARCH
+  skip_cleanup: true
+  on:
+    tags: true

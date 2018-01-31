@@ -29,6 +29,7 @@ func init() {
 }
 
 func main() {
+	fmt.Println("Tagger " + taggerVersion)
 	flag.Parse()
 
 	// Load configuration.
