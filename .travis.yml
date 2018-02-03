@@ -10,9 +10,12 @@ branches:
 go:
 - 1.9.x
 before_install:
-- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/ee6a30a7e167a2bd39b33e54bcf912a1190e2ce6/Formula/libgit2.rb;
-  fi
-- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then scripts/before_install_linux.sh; fi
+#- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/ee6a30a7e167a2bd39b33e54bcf912a1190e2ce6/Formula/libgit2.rb; fi
+#- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then scripts/before_install_linux.sh; fi
+- cd vendor/gopkg.in/libgit2/git2go.v25/
+- git submodule update --init
+- make install-static
+- cd ../../../..
 script:
 - go build -o bin/tagger-`go env GOOS`-`go env GOARCH`
 notifications:
