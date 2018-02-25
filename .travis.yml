@@ -14,7 +14,8 @@ before_install:
   fi
 - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then scripts/before_install_linux.sh; fi
 script:
-- go build -o bin/tagger-`go env GOOS`-`go env GOARCH`
+- go build -tags 'static' -o bin/tagger-`go env GOOS`-`go env GOARCH`
+- ls -al
 notifications:
   email:
     on_success: change
