@@ -13,11 +13,17 @@ var statusCmd = &cobra.Command{
 	Long: `tagger status displays last version.
 It also displays how many commits have been made since the last tag.
 `,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("status called")
-	},
+	Run: getStatus,
 }
 
 func init() {
 	rootCmd.AddCommand(statusCmd)
+}
+
+func getStatus(cmd *cobra.Command, args []string) {
+	fmt.Println("status called")
+	fmt.Println("branch : " + config.DefaultBranch)
+	// Check if user is on correct branch.
+	// Read in version from file.
+	// Display last version.
 }
