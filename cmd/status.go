@@ -3,6 +3,8 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/msound/tagger/config"
+	"github.com/msound/tagger/version"
 	"github.com/spf13/cobra"
 )
 
@@ -21,9 +23,9 @@ func init() {
 }
 
 func getStatus(cmd *cobra.Command, args []string) {
-	fmt.Println("status called")
-	fmt.Println("branch : " + config.DefaultBranch)
-	// Check if user is on correct branch.
-	// Read in version from file.
-	// Display last version.
+	// TODO : Check if user is on correct branch.
+	// Read in version from file and display.
+	vm := version.MakeManager(config.C)
+	v := vm.ReadVersion(config.C.FilePath, config.C.VersionKey)
+	fmt.Println("Current Version is: " + v)
 }
