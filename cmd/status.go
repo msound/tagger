@@ -25,7 +25,16 @@ func init() {
 func getStatus(cmd *cobra.Command, args []string) {
 	// TODO : Check if user is on correct branch.
 	// Read in version from file and display.
-	vm := version.MakeManager(config.C)
-	v := vm.ReadVersion(config.C.FilePath, config.C.VersionKey)
+	vrw, err := version.MakeVersionReaderWriter(config.C)
+	if err != nil {
+		fmt.Println("Error reading version: ", err)
+		return
+	}
+
+	v, err := vrw.ReadVersion()
+	if err != nil {
+		fmt.Println("Error reading version: ", err)
+		return
+	}
 	fmt.Println("Current Version is: " + v)
 }

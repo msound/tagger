@@ -1,34 +1,24 @@
 package version
 
-import "github.com/msound/tagger/config"
+import (
+	"errors"
 
-// ReadWriter interface supports methods to read and write versions.
-type ReadWriter interface {
-	ReadVersion(filePath string, versionKey string) string
-	WriteVersion(filePath string, versionKey string, version string)
+	"github.com/msound/tagger/config"
+)
+
+// ReaderWriter is a struct that has methods to read and write versions.
+type ReaderWriter interface {
+	ReadVersion() (string, error)
+	WriteVersion(version string) error
 }
 
-// Manager manipulates versions in files
-type Manager struct {
-	config config.Config
-	ReadWriter
-}
+// MakeVersionReaderWriter is a factory method to create the variable
+func MakeVersionReaderWriter(c config.Config) (ReaderWriter, error) {
 
-// MakeManager is a factory method to create the variable
-func MakeManager(config config.Config) *Manager {
-	var v *Manager
-	switch config.FileFormat {
+	switch c.FileFormat {
 	case "php":
-		v = &Manager{
-			config,
-			PHPVersion{},
-		}
-	case "yaml":
-		v = &Manager{
-			config,
-			YAMLVersion{},
-		}
+		return &PHPVersion{c}, nil
 	}
 
-	return v
+	return nil, errors.New("The given file format is not supported")
 }
