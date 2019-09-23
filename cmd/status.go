@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/msound/tagger/config"
+	"github.com/msound/tagger/git"
 	"github.com/msound/tagger/version"
 	"github.com/spf13/cobra"
 )
@@ -37,4 +38,11 @@ func getStatus(cmd *cobra.Command, args []string) {
 		return
 	}
 	fmt.Println("Current Version is: " + v)
+
+	g := git.Client{Path: "."}
+	result, err := g.TagExists(v)
+	if err != nil {
+		fmt.Println("Error checking if tag exists: ", err)
+	}
+	fmt.Println("The tag exists: ", result)
 }
