@@ -1,8 +1,6 @@
 package config
 
 import (
-	"fmt"
-
 	"github.com/spf13/viper"
 )
 
@@ -28,7 +26,6 @@ func init() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
 		C.DefaultBranch = viper.GetString("branch")
 		C.UpstreamRemote = viper.GetString("remote")
 		C.FileFormat = viper.GetString("format")

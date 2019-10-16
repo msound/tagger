@@ -44,5 +44,16 @@ func getStatus(cmd *cobra.Command, args []string) {
 	if err != nil {
 		fmt.Println("Error checking if tag exists: ", err)
 	}
-	fmt.Println("The tag exists: ", result)
+	if !result {
+		fmt.Println("Tag cannot be found. Did you run `git fetch <remote>`")
+	}
+
+	changelog, err := g.Changelog(v)
+	if err != nil {
+		fmt.Print("Error getting changelog: ", err)
+	}
+	fmt.Println("*** CHANGELOG ***")
+	for _, line := range changelog {
+		fmt.Println(line)
+	}
 }
